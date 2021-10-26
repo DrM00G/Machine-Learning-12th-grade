@@ -15,7 +15,7 @@ for x in range(500):
       color=spot[2]
       closeness=((spot[0]-point[0]/20)**2+(spot[1]-point[1]/20)**2)
   dice=random.randint(0,50)
-  if dice>closeness:
+  if dice<closeness:
     color=colors[colors.index(color)-1]
   plt.plot(point[0]/20, point[1]/20, color)
 plt.savefig("random_data")
