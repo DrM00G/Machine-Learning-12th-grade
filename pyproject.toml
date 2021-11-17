@@ -6,6 +6,7 @@ authors = ["DrMoo <<>>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
+sklearn = "^0.0"
 
 [tool.poetry.dev-dependencies]
 
