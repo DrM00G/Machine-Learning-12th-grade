@@ -1,12 +1,11 @@
 [tool.poetry]
-name = "repl_python3_Machine-Learning"
+name = "repl_python3_Machine-Learning-12"
 version = "0.1.0"
 description = ""
 authors = ["DrMoo <<>>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-sklearn = "^0.0"
 
 [tool.poetry.dev-dependencies]
 
