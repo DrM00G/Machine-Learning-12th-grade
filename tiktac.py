@@ -47,11 +47,11 @@ class TikTacToe:
       
     # plt.subplots()
     fig, ax = plt.subplots()
-    ax.plot([n for n in range(20)], origin_comparison, linewidth=2.0)
+    ax.plot([n for n in range(20)], previous_comparison, linewidth=2.0)
     
 
     # plt.plot(origin_comparison, range(20))
-    plt.savefig('tikbestvspevious.png')
+    plt.savefig('tikbestvsprevious.png')
       # for strat in strats:
       #   print("------------")
       #   for n in range(5):
@@ -174,7 +174,7 @@ class TikTacToe:
       return False
 
   def check_same(self,state,uno,dos,tres):
-    if state[uno]==state[dos] and state[dos]==state[tres] and state[uno]!=0:
+    if state[uno]==state[dos] and state[dos]==state[tres] and state[uno]!='0':
       return True
     else:
       return False
