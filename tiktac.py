@@ -15,6 +15,14 @@ class TikTacToe:
     # str_states=[self.make_str(state) for state in possible_states]
     step={self.make_str(state):0 for state in possible_states}
     reduced_states = [self.make_list(state) for state in step.keys()]
+
+    almost_wins={}
+    for state in reduced_states:
+      # if len(self.check_pos_win(state))>0:
+      almost_wins[self.make_str(state)]=self.check_pos_win(state)
+
+
+      
     str_states=[self.make_str(state) for state in reduced_states]
     # reduced_states = [self.make_list(state) for state in str_states]
     for n in range(strat_num):
@@ -34,24 +42,43 @@ class TikTacToe:
     previous_gen=[]
     origin_comparison=[]
     previous_comparison=[]
+    winning_states=[0 for n in range(20)]
+    
     for strat in strats:
       previous_gen.append(strat)
       original_gen.append(strat)
+
+          
     for n in range(20):
       strats=self.next_gen(strats)
-      previous_comparison.append(self.compare_gens(strats[0:5],previous_gen))
-      origin_comparison.append(self.compare_gens(strats[0:5],original_gen))
+      for state in strat.keys():
+        if strat[state] in almost_wins[self.make_str(state)]:
+          winning_states[n]+=1
+
+      # previous_comparison.append(self.compare_gens(strats[0:5],previous_gen))
+      # origin_comparison.append(self.compare_gens(strats[0:5],original_gen))
       previous_gen=[]
       for strat in strats:
         previous_gen.append(strat)
-      
-    # plt.subplots()
-    fig, ax = plt.subplots()
-    ax.plot([n for n in range(20)], previous_comparison, linewidth=2.0)
-    
 
+    print("stage 1")
+    possible_win_count=0
+    for state in almost_wins.keys():
+      if len(almost_wins[self.make_str(state)])>0:
+        possible_win_count+=5
+    print("stage 2")
+    # plt.subplots()
+    win_rate_comparison=[]
+    print("stage 3")
+    for n in range(20):
+      win_rate_comparison.append(winning_states[n]/possible_win_count)
+    fig, ax = plt.subplots()
+    ax.plot([n for n in range(20)], win_rate_comparison, linewidth=2.0)
+    
+    
     # plt.plot(origin_comparison, range(20))
-    plt.savefig('tikbestvsprevious.png')
+    plt.savefig('plot3.png')
+    plt.show()
       # for strat in strats:
       #   print("------------")
       #   for n in range(5):
@@ -59,6 +86,19 @@ class TikTacToe:
     print("done did")
     best_child=strats[0]
 
+  def check_pos_win(self,state):
+    win_points=[]
+    for spot in range(len(state)):
+      if state[spot] == "0":
+        new_state=[]
+        for point in range(len(state)):
+          if point == spot:
+            new_state.append("1")
+          else:
+            new_state.append(state[point])
+        if self.check_win(new_state)=="1":
+          win_points.append(spot)
+    return win_points
     
   def compare_gens(self,group_1,group_2):
     score=[0 for n in range(len(group_1))]
