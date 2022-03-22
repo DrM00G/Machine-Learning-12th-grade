@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 # import numpy as np
 
 class TikTacToe:
-  def __init__(self,strat_num):
+  def __init__(self,strat_num,gens=5,plot=1):
     strat_num=strat_num
     strats=[]
     possible_states=self.create_state(["0","0","0","0","0","0","0","0","0"],"1")
     for state in self.create_state(["0","0","0","0","0","0","0","0","0"],"2"):
-      # if state not in possible_states:
+      # if state not in phjossible_states:
       possible_states.append(state)
     # print(len(possible_states))
 
@@ -16,30 +16,31 @@ class TikTacToe:
     step={self.make_str(state):0 for state in possible_states}
     reduced_states = [self.make_list(state) for state in step.keys()]
 
+    
+
     almost_wins={}
     almost_lose={}
-    for state in reduced_states:
-      # if len(self.check_pos_win(state))>0:
-      almost_wins[self.make_str(state)]=self.check_pos_win(state)
-      almost_lose[self.make_str(state)]=self.check_pos_lose(state)
+    if plot>2:
+      for state in reduced_states:
+        if len(self.check_pos_win(state))>0:
+          almost_wins[self.make_str(state)]=self.check_pos_win(state)
+          almost_lose[self.make_str(state)]=self.check_pos_lose(state)
 
 
-      
     str_states=[self.make_str(state) for state in reduced_states]
-    # reduced_states = [self.make_list(state) for state in str_states]
+    
     for n in range(strat_num):
-      strats.append({state:0 for state in str_states}) #here
+      strats.append({state:0 for state in str_states}) 
       for i in range(len(reduced_states)):
         possible_choices=[]
         for spot in range(len(reduced_states[i])):
           if reduced_states[i][spot]=="0":
             possible_choices.append(spot)
-        # print(possible_choices)
         strats[len(strats)-1][self.make_str(reduced_states[i])]=random.choice(possible_choices)
-    # print(len(strats[0].keys()))
-    # print(strats[0]["000000000"])
-    # print(self.match_up(['0','0','0','0','0','0','0','0','0'], strats[0], strats[1]))
+
+    
     print("start tourny")
+    
     original_gen=[]
     previous_gen=[]
     origin_comparison=[]
@@ -47,39 +48,48 @@ class TikTacToe:
     winning_states=[0 for n in range(20)]
     
     for strat in strats:
-      previous_gen.append(strat)
       original_gen.append(strat)
 
-          
-    for n in range(20):
+    generations=[[] for n in range(gens)]
+    
+    for n in range(gens):
       strats=self.next_gen(strats)
-      for state in almost_lose.keys():
-        if strat[state] in almost_lose[self.make_str(state)]:
-          winning_states[n]+=1
-
-      # previous_comparison.append(self.compare_gens(strats[0:5],previous_gen))
-      # origin_comparison.append(self.compare_gens(strats[0:5],original_gen))
-      previous_gen=[]
       for strat in strats:
-        previous_gen.append(strat)
+        generations[n].append(strat)
 
-    print("stage 1")
-    possible_lose_count=0
-    for state in almost_lose.keys():
-      if len(almost_lose[self.make_str(state)])>0:
-        possible_lose_count+=5
-    print("stage 2")
-    # plt.subplots()
-    win_rate_comparison=[]
-    print("stage 3")
-    for n in range(20):
-      win_rate_comparison.append(winning_states[n]/possible_lose_count)
+
+
+
+
     fig, ax = plt.subplots()
-    ax.plot([n for n in range(20)], win_rate_comparison, linewidth=2.0)
+
+
+    
+    if plot==1:
+      win_rate_comparison=[]
+      for gen in generations:
+        win_rate_comparison.append(self.win_perc(gen,original_gen))
+      ax.plot([n for n in range(gens)], win_rate_comparison, linewidth=2.0)
+
+      
+        
+    # win_rate_comparison=[]
+        
+    # for n in range(gens):
+    #   win_rate_comparison.append(winning_states[n]/possible_lose_count)
+        
+    
+
+
+
+
+
+
+
     
     
     # plt.plot(origin_comparison, range(20))
-    plt.savefig('plot4.png')
+    plt.savefig('plot1v2.png')
     plt.show()
       # for strat in strats:
       #   print("------------")
@@ -115,6 +125,21 @@ class TikTacToe:
         if self.check_win(new_state)=="2":
           lose_points.append(spot)
     return lose_points
+
+  def win_perc(self,group_1,group_2,rounds):
+    win_count=0
+    for n in range(rounds):
+      fella_1=random.choice(group_1)
+      fella_2=random.choice(group_2)
+      outcome_1=self.check_win(self.match_up(['0','0','0','0','0','0','0','0','0'], fella_1, fella_2))
+      outcome_2=self.check_win(self.match_up(['0','0','0','0','0','0','0','0','0'], fella_2, fella_1))
+      if outcome_1=="1":
+          win_count+=1
+      if outcome_2=="2":
+          win_count+=1
+      return win_count/100
+      
+      
     
   def compare_gens(self,group_1,group_2):
     score=[0 for n in range(len(group_1))]
@@ -134,8 +159,11 @@ class TikTacToe:
         
         
 
-  def next_gen(self,strats):
-    best=self.tournament(strats)
+  def next_gen(self,strats,method="tourney"):
+    if method=="top 5":
+      best=self.top_5(strats)
+    elif method=="tourney":
+      best=self.tournament(strats)
     # print(best)
     new_strats=[strats[n] for n in best]
     babies=[]
@@ -157,8 +185,27 @@ class TikTacToe:
       child[state]=random.choice(option)
     return child
       
-
   def tournament(self,strats):
+    best=[]
+    random.shuffle(strats)
+    print(str(len(strats))+" , "+str(len(strats)%3))
+    print((len(strats)-len(strats)%3)/3)
+    # fight_clubs=[[] for n in range(int((len(strats)-len(strats)%3)/3))]
+    fight_clubs=[[] for n in range(5)]
+    # for n in range(int((len(strats)-len(strats)%3)/3)):
+    for n in range(5):
+      for i in range(3):
+        fight_clubs[n].append(strats[3*n+i])
+    for club in fight_clubs:
+      best.append(self.top_5(club,1)[0])
+    print("best len:"+str(len(best)))
+    return best
+
+      
+      
+      
+
+  def top_5(self,strats,cutoff=5):
     score=[0 for n in range(len(strats))]
     size=len(strats)
     for first in range(len(strats)):
@@ -173,7 +220,7 @@ class TikTacToe:
             score[first]-=1
             score[second]+=1
     top=[]
-    for i in range(5):
+    for i in range(cutoff):
       best=[-10*size,0]
       for n in range(len(score)):
         if n not in top:
@@ -181,7 +228,7 @@ class TikTacToe:
             best[0]=score[n]
             best[1]=n
       top.append(best[1])
-    print(score)
+    # print(score)
     return top
       
       
@@ -272,4 +319,4 @@ class TikTacToe:
         inverse.append("0")
     return inverse
   
-tiktac=TikTacToe(25)
+tiktac=TikTacToe(20)
