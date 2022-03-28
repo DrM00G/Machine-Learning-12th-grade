@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 # import numpy as np
 
 class TikTacToe:
-  def __init__(self,strat_num,gens=5,plot=1):
+  def __init__(self,strat_num,gens=20,plot=1,mutation_rate=0.01):
     strat_num=strat_num
     strats=[]
     possible_states=self.create_state(["0","0","0","0","0","0","0","0","0"],"1")
@@ -53,7 +53,7 @@ class TikTacToe:
     generations=[[] for n in range(gens)]
     
     for n in range(gens):
-      strats=self.next_gen(strats)
+      strats=self.next_gen(strats,mutation_rate)
       for strat in strats:
         generations[n].append(strat)
 
@@ -68,35 +68,15 @@ class TikTacToe:
     if plot==1:
       win_rate_comparison=[]
       for gen in generations:
-        win_rate_comparison.append(self.win_perc(gen,original_gen))
+        win_rate_comparison.append(self.win_perc(gen,original_gen,50))
       ax.plot([n for n in range(gens)], win_rate_comparison, linewidth=2.0)
 
       
         
-    # win_rate_comparison=[]
-        
-    # for n in range(gens):
-    #   win_rate_comparison.append(winning_states[n]/possible_lose_count)
-        
     
-
-
-
-
-
-
-
-    
-    
-    # plt.plot(origin_comparison, range(20))
     plt.savefig('plot1v2.png')
-    plt.show()
-      # for strat in strats:
-      #   print("------------")
-      #   for n in range(5):
-      #     print(strat[str_states[n]])
-    print("done did")
-    best_child=strats[0]
+    print("done")
+
 
   def check_pos_win(self,state):
     win_points=[]
@@ -159,7 +139,7 @@ class TikTacToe:
         
         
 
-  def next_gen(self,strats,method="tourney"):
+  def next_gen(self,strats,mutation_rate,method="tourney",):
     if method=="top 5":
       best=self.top_5(strats)
     elif method=="tourney":
@@ -170,7 +150,7 @@ class TikTacToe:
     for first in range(len(new_strats)):
       for second in range(len(new_strats)):
         if first!=second:
-          babies.append(self.breed(new_strats[first],new_strats[second]))
+          babies.append(self.breed(new_strats[first],new_strats[second],mutation_rate))
           #add babies to original then blast
     for baby in babies:
       new_strats.append(baby)
@@ -178,18 +158,28 @@ class TikTacToe:
     
 
 
-  def breed(self,strat_1,strat_2):
+  def breed(self,strat_1,strat_2,mutation_rate):
     child={}
+    
     for state in strat_1.keys():
-      option=[strat_1[state],strat_2[state]]
-      child[state]=random.choice(option)
+      mutation_roll=random.randint(0,1000)
+      if mutation_roll>=(1000*mutation_rate):
+        option=[strat_1[state],strat_2[state]]
+        child[state]=random.choice(option)
+      else:
+        possible_loc=[]
+        for spot in range(len(range(self.make_list(state)))):
+          if self.make_list(state)[spot]=="0":
+            possible_loc.append(spot)
+        child[state]=random.choice(possible_loc)
+      
     return child
       
   def tournament(self,strats):
     best=[]
     random.shuffle(strats)
-    print(str(len(strats))+" , "+str(len(strats)%3))
-    print((len(strats)-len(strats)%3)/3)
+    # print(str(len(strats))+" , "+str(len(strats)%3))
+    # print((len(strats)-len(strats)%3)/3)
     # fight_clubs=[[] for n in range(int((len(strats)-len(strats)%3)/3))]
     fight_clubs=[[] for n in range(5)]
     # for n in range(int((len(strats)-len(strats)%3)/3)):
@@ -198,7 +188,7 @@ class TikTacToe:
         fight_clubs[n].append(strats[3*n+i])
     for club in fight_clubs:
       best.append(self.top_5(club,1)[0])
-    print("best len:"+str(len(best)))
+    # print("best len:"+str(len(best)))
     return best
 
       
