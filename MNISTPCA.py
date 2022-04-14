@@ -1,4 +1,4 @@
-import tensorflow.keras.datasets.mnist as mnist
+# import tensorflow.keras.datasets.mnist as mnist
 import matplotlib.pyplot as plt
 import numpy as np
 import random
