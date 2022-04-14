@@ -68,8 +68,9 @@ class TikTacTree:
     node_dict={}
     first=Node(['0','0','0','0','0','0','0','0','0'],0,"x")
     node_dict["000000000"]=first
-    for node in first.reproduce():
-      node_dict[self.make_str(node.state)]=node
+    print(len(first.reproduce()))
+    # for node in first.reproduce():
+    #   node_dict[self.make_str(node.state)]=node
 
     
     
