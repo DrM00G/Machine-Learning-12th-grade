@@ -104,7 +104,8 @@ def order_sets(set):
       if net.calc_rss()<top[0] and net not in ordered:
         top=[net.calc_rss(),net]
     ordered.append(top[1])
-  print(set.index(ordered[0]))
+  # print(set.index(ordered[0]))
+  # print([net.calc_rss() for net in set])
   return ordered
 
 
@@ -119,6 +120,39 @@ training=[(0.0, 7), (0.2, 5.6), (0.4, 3.56), (0.6, 1.23), (0.8, -1.03),
 
 
 # print(generate_network_edges([1,10,6,3,1]))
+
+
+#START TEST CODE
+test_weights={}
+for edge in generate_network_edges([1,10,6,3,1]):
+  test_weights[str(edge[0])+","+str(edge[1])]=1
+  TikTacNet=NeuralNet(training,test_weights,0.5)
+
+print(TikTacNet.calculate(1))
+
+print("output node 0&1: "+str(np.tanh(1)))
+
+print("output node 2-11: "+str(np.tanh(2*np.tanh(1))))
+
+x=10*np.tanh(2*np.tanh(1))
+x_2=np.tanh(1)
+# print(x)
+y=np.tanh(x+x_2)
+print("13-18 node outputs: "+str(y))
+
+print("20-22 node outputs: "+str(np.tanh(6*y+x_2)))
+
+q=np.tanh(6*y+x_2)
+
+print("output: "+str(np.tanh(3*q+x_2)))
+
+# print(np.tanh(y))
+
+
+
+
+
+#START REAL CODE
 net_weights=[]
 
 for n in range(30):
@@ -133,13 +167,22 @@ for n in range(30):
 
 print('start analysis')
 
+# print("normal dist: "+str([np.random.normal(0,1) for n in range(20)]))
+
+# print("uniform dist: "+str([random.uniform(0,1) for n in range(20)]))
+
+
 ordered_nets=order_sets(net_weights)
 
 print("begining rss "+str(ordered_nets[0].calc_rss()))
 
 for gen in range(5):
   
-  new_set=[]    
+  new_set=[]
+  # print([key for key in ordered_nets[0].weights.keys()])
+  print("0,5"+str([diction.weights["0,5"] for diction in ordered_nets]))
+  print("5,16:"+str([diction.weights["5,16"] for diction in ordered_nets]))
+  
   
   for net in ordered_nets:
     flawed_clone={}
@@ -148,7 +191,7 @@ for gen in range(5):
     new_mut_rate=net.mutation_rate*np.exp((np.random.normal(0,1))/(2**(0.5)*len(net.weights.keys())**0.25))
     new_set.append(NeuralNet(training,flawed_clone,new_mut_rate))
     new_set.append(net)
-
+  
   ordered_nets=order_sets(new_set)
   print("next rss "+str(ordered_nets[0].calc_rss()))
 print("final rss "+str(ordered_nets[0].calc_rss()))
