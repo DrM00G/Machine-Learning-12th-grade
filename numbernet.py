@@ -1,5 +1,7 @@
 import numpy as np
 import random
+import matplotlib.pyplot as plt
+
 
 class NeuralNet:
   def __init__(self,training_set,weights,mute_rate):
@@ -69,7 +71,7 @@ class Node:
       if self.bias==False:
         output=self.tanf(self.input_value)
       else:
-        output=self.tanf(1)
+        output=1
       for child in self.children:
         if child.bias==False:
           weighted_output=weights[str(self.index)+","+str(child.index)]*output
@@ -125,26 +127,30 @@ training=[(0.0, 7), (0.2, 5.6), (0.4, 3.56), (0.6, 1.23), (0.8, -1.03),
 #START TEST CODE
 test_weights={}
 for edge in generate_network_edges([1,10,6,3,1]):
-  test_weights[str(edge[0])+","+str(edge[1])]=1
+  test_weights[str(edge[0])+","+str(edge[1])]=0.1
   TikTacNet=NeuralNet(training,test_weights,0.5)
 
-print(TikTacNet.calculate(1))
+def expected_output(w,i):
+  return np.tanh(3*w*np.tanh(6*w*np.tanh(10*w*np.tanh(w*np.tanh(i)+w)+w)+w)+w)
 
-print("output node 0&1: "+str(np.tanh(1)))
+print("expected value: "+str(expected_output(0.1,0)))
+print(TikTacNet.calculate(0))
 
-print("output node 2-11: "+str(np.tanh(2*np.tanh(1))))
+# print("output node 0: "+str(np.tanh(0)))
 
-x=10*np.tanh(2*np.tanh(1))
-x_2=np.tanh(1)
-# print(x)
-y=np.tanh(x+x_2)
-print("13-18 node outputs: "+str(y))
+# print("output node 2-11: "+str(np.tanh(np.tanh(0)+np.tanh(1))))
 
-print("20-22 node outputs: "+str(np.tanh(6*y+x_2)))
+# x=10*np.tanh(2*np.tanh(0))
+# x_2=np.tanh(1)
+# # print(x)
+# y=np.tanh(x+x_2)
+# print("13-18 node outputs: "+str(y))
 
-q=np.tanh(6*y+x_2)
+# print("20-22 node outputs: "+str(np.tanh(6*y+x_2)))
 
-print("output: "+str(np.tanh(3*q+x_2)))
+# q=np.tanh(6*y+x_2)
+
+# print("output: "+str(np.tanh(3*q+x_2)))
 
 # print(np.tanh(y))
 
@@ -153,47 +159,73 @@ print("output: "+str(np.tanh(3*q+x_2)))
 
 
 #START REAL CODE
-net_weights=[]
+# net_weights=[]
 
-for n in range(30):
-  weights={}
-  for edge in generate_network_edges([1,10,6,3,1]):
-    weights[str(edge[0])+","+str(edge[1])]=random.uniform(-0.2,0.2)
+# for n in range(30):
+#   weights={}
+#   for edge in generate_network_edges([1,10,6,3,1]):
+#     weights[str(edge[0])+","+str(edge[1])]=random.uniform(-0.2,0.2)
   
-  # net_weights[n].append(weights)
+#   # net_weights[n].append(weights)
   
-  TikTacNet=NeuralNet(training,weights,0.5)
-  net_weights.append(TikTacNet)
+#   TikTacNet=NeuralNet(training,weights,0.5)
+#   net_weights.append(TikTacNet)
 
-print('start analysis')
+# print('start analysis')
 
-# print("normal dist: "+str([np.random.normal(0,1) for n in range(20)]))
+# # print("normal dist: "+str([np.random.normal(0,1) for n in range(20)]))
 
-# print("uniform dist: "+str([random.uniform(0,1) for n in range(20)]))
+# # print("uniform dist: "+str([random.uniform(0,1) for n in range(20)]))
 
 
-ordered_nets=order_sets(net_weights)
+# ordered_nets=order_sets(net_weights)
 
-print("begining rss "+str(ordered_nets[0].calc_rss()))
+# print("begining rss "+str(ordered_nets[0].calc_rss()))
 
-for gen in range(5):
+
+
+
+
+# x_values=[point[0] for point in ordered_nets[0].normalized_set]
+
+# values=[[] for n in range(15)]
+# for i in range(15):
+#   for point in ordered_nets[i].normalized_set:
+#     values[i].append(ordered_nets[i].calculate(point[0]))
+
+# for value in values:
+#   plt.plot(x_values,value)
+
+
+# plt.savefig("compare_gen1_nets")
+
+
+
+
+
+
+
+
+# for gen in range(5):
   
-  new_set=[]
-  # print([key for key in ordered_nets[0].weights.keys()])
-  print("0,5"+str([diction.weights["0,5"] for diction in ordered_nets]))
-  print("5,16:"+str([diction.weights["5,16"] for diction in ordered_nets]))
+#   new_set=[]
+#   # print([key for key in ordered_nets[0].weights.keys()])
+#   # print("0,5"+str([diction.weights["0,5"] for diction in ordered_nets]))
+#   # print("5,16:"+str([diction.weights["5,16"] for diction in ordered_nets]))
+#   # print(["RSSs: "+str(diction.calc_rss()) for diction in ordered_nets])
   
+#   print("calc 1"+str([diction.calculate(0) for diction in ordered_nets]))
+#   # print(/n)
+#   for net in ordered_nets:
+#     flawed_clone={}
+#     for key in net.weights.keys():
+#       flawed_clone[key]=net.weights[key]+net.mutation_rate*np.random.normal(0,1)
+#     new_mut_rate=net.mutation_rate*np.exp((np.random.normal(0,1))/(2**(0.5)*len(net.weights.keys())**0.25))
+#     new_set.append(NeuralNet(training,flawed_clone,new_mut_rate))
+#     new_set.append(net)
   
-  for net in ordered_nets:
-    flawed_clone={}
-    for key in net.weights.keys():
-      flawed_clone[key]=net.weights[key]+net.mutation_rate*np.random.normal(0,1)
-    new_mut_rate=net.mutation_rate*np.exp((np.random.normal(0,1))/(2**(0.5)*len(net.weights.keys())**0.25))
-    new_set.append(NeuralNet(training,flawed_clone,new_mut_rate))
-    new_set.append(net)
-  
-  ordered_nets=order_sets(new_set)
-  print("next rss "+str(ordered_nets[0].calc_rss()))
-print("final rss "+str(ordered_nets[0].calc_rss()))
+#   ordered_nets=order_sets(new_set)
+#   print("next rss "+str(ordered_nets[0].calc_rss()))
+# print("final rss "+str(ordered_nets[0].calc_rss()))
 
 
