@@ -1,15 +1,17 @@
 class Node:
-  def __init__(self,tree,state,parents,turn):
+  def __init__(self,tree,state,parents,turn,level):
     self.tree=tree
     self.state=state
+    self.level=level
     self.parents=parents
     self.turn=turn 
     self.turn_options=["x",'o']
     self.children=self.produce()
 
+
   def reproduce(self):
     # child_states=self.produce()
-    child_nodes=[Node(self.tree,child_state,[self],self.turn_options[self.turn_options.index(self.turn)-1]) for child_state in self.produce()]
+    child_nodes=[Node(self.tree,child_state,[self],self.turn_options[self.turn_options.index(self.turn)-1],self.level+1) for child_state in self.produce()]
     recombine_list=[]
     for child in child_nodes:
       if self.tree.make_str(child.state) not in self.tree.node_dict.keys():
@@ -26,16 +28,17 @@ class Node:
 
   def produce(self):
     next_states=[]
-    if self.check_win(self.state)==False:
-      for n in range(9):
-        if self.state[n] == "0":
-          new_state=[]
-          for i in range(9):
-            if i!=n:
-              new_state.append(self.state[i])
-            else:
-              new_state.append(self.turn)
-          next_states.append(new_state)
+    if self.tree.layers>self.level:
+      if self.check_win(self.state)==False:
+        for n in range(9):
+          if self.state[n] == "0":
+            new_state=[]
+            for i in range(9):
+              if i!=n:
+                new_state.append(self.state[i])
+              else:
+                new_state.append(self.turn)
+            next_states.append(new_state)
     return next_states
 
   def check_win(self,state):
@@ -71,9 +74,9 @@ class Node:
       
 
 class TikTacTree:
-  def __init__(self):
+  def __init__(self,layers):
     self.node_dict={}
-    self.node_dict["000000000"]=Node(self,['0','0','0','0','0','0','0','0','0'],[],"x")
+    self.node_dict["000000000"]=Node(self,['0','0','0','0','0','0','0','0','0'],[],"x",1)
     # print(len(first.reproduce()))
     self.node_dict["000000000"].reproduce()
       # self.node_dict[self.make_str(node.state)]=node

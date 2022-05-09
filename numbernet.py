@@ -22,6 +22,10 @@ class NeuralNet:
     self.network[0].append(Node(self.network[1],1,bias=True))
 
   def calculate(self,input):
+    for level in self.network:
+      for node in level:
+        node.input_value=0
+        node.final=0
     self.network[0][0].calculate(self.weights,input)
     self.network[0][1].calculate(self.weights)
     return(self.network[4][0].final)
@@ -29,7 +33,8 @@ class NeuralNet:
   def calc_rss(self):
     values=[]
     for point in self.normalized_set:
-      values.append((self.calculate(point[0])-point[1])**2)
+      values.append((point[1]-self.calculate(point[0]))**2)
+    
     return sum(values)
     
     
@@ -133,8 +138,8 @@ for edge in generate_network_edges([1,10,6,3,1]):
 def expected_output(w,i):
   return np.tanh(3*w*np.tanh(6*w*np.tanh(10*w*np.tanh(w*np.tanh(i)+w)+w)+w)+w)
 
-print("expected value: "+str(expected_output(0.1,0)))
-print(TikTacNet.calculate(0))
+# print("expected value: "+str(expected_output(0.1,0)))
+# print(TikTacNet.calculate(0))
 
 # print("output node 0: "+str(np.tanh(0)))
 
@@ -159,30 +164,28 @@ print(TikTacNet.calculate(0))
 
 
 #START REAL CODE
-# net_weights=[]
+net_weights=[]
 
-# for n in range(30):
-#   weights={}
-#   for edge in generate_network_edges([1,10,6,3,1]):
-#     weights[str(edge[0])+","+str(edge[1])]=random.uniform(-0.2,0.2)
+for n in range(30):
+  weights={}
+  for edge in generate_network_edges([1,10,6,3,1]):
+    weights[str(edge[0])+","+str(edge[1])]=random.uniform(-0.2,0.2)
   
-#   # net_weights[n].append(weights)
+  # net_weights[n].append(weights)
   
-#   TikTacNet=NeuralNet(training,weights,0.5)
-#   net_weights.append(TikTacNet)
+  TikTacNet=NeuralNet(training,weights,0.5)
+  net_weights.append(TikTacNet)
 
-# print('start analysis')
-
-# # print("normal dist: "+str([np.random.normal(0,1) for n in range(20)]))
-
-# # print("uniform dist: "+str([random.uniform(0,1) for n in range(20)]))
+print('start analysis')
 
 
-# ordered_nets=order_sets(net_weights)
-
-# print("begining rss "+str(ordered_nets[0].calc_rss()))
 
 
+ordered_nets=order_sets(net_weights)
+
+print("begining rss "+str(ordered_nets[0].calc_rss()))
+
+rsses=[ordered_nets[0].calc_rss()]
 
 
 
@@ -206,26 +209,29 @@ print(TikTacNet.calculate(0))
 
 
 
-# for gen in range(5):
+for gen in range(10):
   
-#   new_set=[]
-#   # print([key for key in ordered_nets[0].weights.keys()])
-#   # print("0,5"+str([diction.weights["0,5"] for diction in ordered_nets]))
-#   # print("5,16:"+str([diction.weights["5,16"] for diction in ordered_nets]))
-#   # print(["RSSs: "+str(diction.calc_rss()) for diction in ordered_nets])
+  new_set=[]
+  # print([key for key in ordered_nets[0].weights.keys()])
+  # print("0,5"+str([diction.weights["0,5"] for diction in ordered_nets]))
+  # print("5,16:"+str([diction.weights["5,16"] for diction in ordered_nets]))
   
-#   print("calc 1"+str([diction.calculate(0) for diction in ordered_nets]))
-#   # print(/n)
-#   for net in ordered_nets:
-#     flawed_clone={}
-#     for key in net.weights.keys():
-#       flawed_clone[key]=net.weights[key]+net.mutation_rate*np.random.normal(0,1)
-#     new_mut_rate=net.mutation_rate*np.exp((np.random.normal(0,1))/(2**(0.5)*len(net.weights.keys())**0.25))
-#     new_set.append(NeuralNet(training,flawed_clone,new_mut_rate))
-#     new_set.append(net)
   
-#   ordered_nets=order_sets(new_set)
-#   print("next rss "+str(ordered_nets[0].calc_rss()))
-# print("final rss "+str(ordered_nets[0].calc_rss()))
+  # print("calc 1"+str([diction.calculate(0) for diction in ordered_nets]))
+  # print(/n)
+  for net in ordered_nets:
+    flawed_clone={}
+    for key in net.weights.keys():
+      flawed_clone[key]=net.weights[key]+net.mutation_rate*np.random.normal(0,1)
+    new_mut_rate=net.mutation_rate*np.exp((np.random.normal(0,1))/(2**(0.5)*len(net.weights.keys())**0.25))
+    new_set.append(NeuralNet(training,flawed_clone,new_mut_rate))
+    new_set.append(net)
+  
+  ordered_nets=order_sets(new_set)
+  print("next rss "+str(ordered_nets[0].calc_rss()))
+  rsses.append(ordered_nets[0].calc_rss())
+print("final rss "+str(ordered_nets[0].calc_rss()))
 
+plt.plot(range(11),rsses)
 
+plt.savefig("numbernet_rss")
